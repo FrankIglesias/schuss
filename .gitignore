@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated resort data (built by scripts/build-resort-data.ts)
+/resorts.json
+/public/resorts/
+
+# Claude Code local state
+.claude/

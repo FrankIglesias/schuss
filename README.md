@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Schuss
 
-## Getting Started
+Explore European ski resorts on an interactive 3D terrain map. Search by name, see pistes and lifts plotted from OpenSkiMap, toggle 2D / 3D, drop your location with a skier marker, and save favorites.
 
-First, run the development server:
+Built with Next.js 16 (App Router, Turbopack) and MapLibre GL.
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The first run needs the resort dataset:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+bun run scripts/build-resort-data.ts
+```
 
-## Learn More
+This produces `resorts.json` (gitignored) and `public/resorts/{slug}.json` files.
 
-To learn more about Next.js, take a look at the following resources:
+## Refresh data selectively
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The build script accepts phase flags so you don't have to re-download everything:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+bun run scripts/build-resort-data.ts                 # all phases
+bun run scripts/build-resort-data.ts --geojson       # only re-download per-resort GeoJSONs
+bun run scripts/build-resort-data.ts --index         # only rebuild resorts.json
+bun run scripts/build-resort-data.ts --images        # only fill missing image URLs
+bun run scripts/build-resort-data.ts --images --refresh   # also overwrite existing images
+```
 
-## Deploy on Vercel
+## Tech stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Next.js 16** (App Router, Turbopack)
+- **React 19**
+- **MapLibre GL 4.x** + Carto Dark Matter style
+- **Tailwind CSS 4**
+- **Bun** as the package manager and ETL runtime
+- **TypeScript** with strict-type-checked ESLint
+- **OpenSkiMap** as the data source for ski areas, runs, and lifts
+- **Wikipedia / Wikidata** for hero images
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Data sources & credits
+
+- Map © [OpenFreeMap](https://openfreemap.org) & [OpenStreetMap](https://www.openstreetmap.org/copyright)
+- Terrain DEM © Mapzen / AWS Open Data
+- Pistes & lifts © [OpenSkiMap](https://openskimap.org)
+- Hero images © Wikipedia / Wikimedia Commons

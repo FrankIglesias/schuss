@@ -1,26 +1,138 @@
 @import "tailwindcss";
+@import "maplibre-gl/dist/maplibre-gl.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #0b1220;
+  --card: #ffffff;
+  --card-foreground: #0b1220;
+  --muted: #e2e8f0;
+  --muted-foreground: #475569;
+  --accent: #0ea5e9;
+  --accent-foreground: #ffffff;
+  --border: rgba(15, 23, 42, 0.08);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #050814;
+    --foreground: #f1f5f9;
+    --card: #0b1426;
+    --card-foreground: #f1f5f9;
+    --muted: #111a2e;
+    --muted-foreground: #94a3b8;
+    --accent: #38bdf8;
+    --border: rgba(255, 255, 255, 0.08);
   }
+}
+
+html, body {
+  height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+
+/* App-shell scroll container */
+.app-shell {
+  max-width: 540px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  position: relative;
+  background: var(--background);
+}
+
+/* Hide scrollbars on horizontal rails */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* Maplibre control tweaks */
+.maplibregl-ctrl-group {
+  background: rgba(15, 23, 42, 0.85) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25) !important;
+}
+.maplibregl-ctrl-group button {
+  background: transparent !important;
+  filter: invert(1);
+}
+.maplibregl-ctrl-attrib {
+  background: rgba(0, 0, 0, 0.45) !important;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+}
+.maplibregl-ctrl-attrib a { color: rgba(255, 255, 255, 0.95); }
+
+/* Run info popup */
+.maplibregl-popup-content {
+  background: rgba(15, 23, 42, 0.92) !important;
+  color: #ffffff;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+.maplibregl-popup-tip {
+  border-top-color: rgba(15, 23, 42, 0.92) !important;
+  border-bottom-color: rgba(15, 23, 42, 0.92) !important;
+}
+.maplibregl-popup-close-button {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 18px !important;
+  padding: 2px 6px !important;
+}
+.run-popup-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.run-popup-meta { display: flex; gap: 8px; align-items: center; font-size: 11px; opacity: 0.85; }
+.run-popup-pill {
+  padding: 2px 8px;
+  border-radius: 9999px;
+  text-transform: capitalize;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Custom skier marker for user location */
+.skier-marker {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  font-size: 42px;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  filter: drop-shadow(0 2px 4px rgba(2, 6, 23, 0.55));
+}
+.skier-marker::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #0ea5e9;
+  opacity: 0.45;
+  animation: skier-pulse 1.8s ease-out infinite;
+  z-index: -1;
+}
+@keyframes skier-pulse {
+  0%   { transform: scale(0.7); opacity: 0.55; }
+  100% { transform: scale(2.6); opacity: 0; }
 }
