@@ -114,7 +114,6 @@ export const ResortMap = forwardRef<ResortMapHandle, Props>(function ResortMap(
       zoom: 12.2,
       pitch: 0,
       bearing: 0,
-      maxPitch: 0,
       minZoom: constraints.minZoom,
       maxZoom: 17,
       maxBounds: constraints.maxBounds,
