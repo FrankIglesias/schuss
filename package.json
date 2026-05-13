@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "build:data": "bun run scripts/build-resort-data.ts"
+    "build:data": "cargo run --release --manifest-path scripts/etl/Cargo.toml --"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
