@@ -41,7 +41,11 @@ export const ResortMap = forwardRef<ResortMapHandle, Props>(function ResortMap(
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const minZoomRef = useRef({ minZoom: 11, minZoom3d: 10 });
+  const constraintsRef = useRef<{
+    minZoom: number;
+    minZoom3d: number;
+    maxBounds2d: [[number, number], [number, number]];
+  }>({ minZoom: 11, minZoom3d: 10, maxBounds2d: [[-180, -85], [180, 85]] });
   const featureBboxes = useRef(new Map<string, [number, number, number, number]>());
   const onRunsLoadedRef = useRef(onRunsLoaded);
   onRunsLoadedRef.current = onRunsLoaded;
@@ -95,16 +99,17 @@ export const ResortMap = forwardRef<ResortMapHandle, Props>(function ResortMap(
     if (!map) return;
     const next = !is3d;
     setIs3d(next);
-    toggleTerrain(map, next, minZoomRef.current);
+    toggleTerrain(map, next, constraintsRef.current);
   };
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
     const constraints = viewportConstraints(resort.bbox);
-    minZoomRef.current = {
+    constraintsRef.current = {
       minZoom: constraints.minZoom,
       minZoom3d: constraints.minZoom3d,
+      maxBounds2d: constraints.maxBounds,
     };
 
     const map = new maplibregl.Map({
@@ -200,7 +205,8 @@ export const ResortMap = forwardRef<ResortMapHandle, Props>(function ResortMap(
       </div>
 
       {/* Legend / piste filter */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-3 flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur text-white text-[11px] leading-tight px-2 py-1.5 shadow-lg">
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-3 max-w-[calc(100%-1.5rem)] overflow-x-auto no-scrollbar rounded-full bg-black/70 backdrop-blur text-white text-[11px] leading-tight px-2 py-1.5 shadow-lg">
+        <div className="flex items-center gap-1.5 w-max">
         {LEGEND_DIFFICULTIES.map(({ key, label, color }) => {
           const active = visibleDifficulties.has(key);
           // "easy" pill aggregates the rare "novice" runs too.
@@ -212,7 +218,7 @@ export const ResortMap = forwardRef<ResortMapHandle, Props>(function ResortMap(
             <button
               key={key}
               onClick={() => toggleDifficulty(key)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 h-7 transition active:scale-95 ${
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 h-7 transition active:scale-95 ${
                 active ? "bg-white/15" : "opacity-40"
               }`}
             >
@@ -224,7 +230,7 @@ export const ResortMap = forwardRef<ResortMapHandle, Props>(function ResortMap(
         })}
         <button
           onClick={toggleLifts}
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 h-7 transition active:scale-95 ${
+          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 h-7 transition active:scale-95 ${
             liftsVisible ? "bg-white/15" : "opacity-40"
           }`}
         >
@@ -235,6 +241,7 @@ export const ResortMap = forwardRef<ResortMapHandle, Props>(function ResortMap(
           <span>Lifts</span>
           {counts.lifts > 0 && <span className="opacity-60 tabular-nums">{counts.lifts}</span>}
         </button>
+        </div>
       </div>
 
       {!loaded && (

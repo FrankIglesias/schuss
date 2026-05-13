@@ -32,21 +32,26 @@ export function setupTerrain(map: maplibregl.Map): void {
  * Toggle the 3D terrain on/off:
  *   - flips terrain (DEM) and hillshade visibility
  *   - swaps the camera between flat (pitch 0) and tilted (pitch 60)
+ *   - releases maxBounds in 3D so the tilted camera isn't clamped flat,
+ *     restores them in 2D
  * Returns silently if the map has no terrain source (e.g. setup failed).
  */
 export function toggleTerrain(
   map: maplibregl.Map,
   on: boolean,
-  opts: { minZoom: number; minZoom3d: number },
+  opts: {
+    minZoom: number;
+    minZoom3d: number;
+    maxBounds2d: [[number, number], [number, number]];
+  },
 ): void {
+  // Apply constraints + terrain BEFORE the camera ease. setMaxBounds clamps
+  // pitch back toward 0 if not released first; setTerrain triggers a style
+  // invalidation that cancels the easeTo animation if called after it.
+  map.setMaxBounds(on ? null : opts.maxBounds2d);
   map.setMaxPitch(on ? 80 : 0);
   map.setMinPitch(0);
   map.setMinZoom(on ? opts.minZoom3d : opts.minZoom);
-  map.easeTo({
-    pitch: on ? 60 : 0,
-    bearing: on ? -20 : 0,
-    duration: 700,
-  });
   try {
     if (on && map.getSource("terrain")) {
       map.setTerrain({ source: "terrain", exaggeration: 1.4 });
@@ -59,4 +64,11 @@ export function toggleTerrain(
   } catch (err) {
     console.error("[toggleTerrain failed]", err);
   }
+  map.easeTo({
+    pitch: on ? 60 : 0,
+    bearing: on ? -20 : 0,
+    zoom: map.getZoom() + (on ? -0.8 : 0.8),
+    duration: 700,
+    essential: true,
+  });
 }
