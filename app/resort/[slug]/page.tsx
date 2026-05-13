@@ -2,15 +2,14 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, MapPin, Mountain, ArrowUp, Cable } from "lucide-react";
-import { getAllResorts, getResortBySlug } from "@/lib/resorts-db";
+import { getResortBySlug } from "@/lib/resorts-db";
 import { ResortViewer } from "@/components/ResortViewer";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { ResortPlaceholder } from "@/components/ResortPlaceholder";
 
-export async function generateStaticParams() {
-  const resorts = await getAllResorts();
-  return resorts.map((r) => ({ slug: r.slug }));
-}
+// ISR: first request to each slug hits Neon; subsequent requests in the window
+// serve the cached HTML. Resort metadata is near-static, so a long window is safe.
+export const revalidate = 86400;
 
 export default async function ResortPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
