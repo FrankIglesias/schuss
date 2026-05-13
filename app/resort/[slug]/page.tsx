@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +11,47 @@ import { ResortPlaceholder } from "@/components/ResortPlaceholder";
 // ISR: first request to each slug hits Neon; subsequent requests in the window
 // serve the cached HTML. Resort metadata is near-static, so a long window is safe.
 export const revalidate = 86400;
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> },
+): Promise<Metadata> {
+  const { slug } = await params;
+  const resort = await getResortBySlug(slug);
+  if (!resort) return { title: "Resort not found — Schuss" };
+
+  const where = [resort.region, resort.country].filter(Boolean).join(", ");
+  const title = `${resort.name}${where ? `, ${where}` : ""} — Schuss`;
+  const stats: string[] = [];
+  if (resort.runCount) stats.push(`${resort.runCount} pistes`);
+  if (resort.liftCount) stats.push(`${resort.liftCount} lifts`);
+  if (resort.elevationMax) stats.push(`up to ${Math.round(resort.elevationMax)} m`);
+  const description = stats.length
+    ? `${stats.join(" · ")}. Explore ${resort.name} on a 3D ski map with pistes and lifts.`
+    : `Explore ${resort.name} on a 3D ski map with pistes and lifts.`;
+
+  const url = `/resort/${resort.slug}`;
+  const images = resort.image ? [{ url: resort.image, alt: resort.name }] : undefined;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      url,
+      title,
+      description,
+      siteName: "Schuss",
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: resort.image ? [resort.image] : undefined,
+    },
+  };
+}
 
 export default async function ResortPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

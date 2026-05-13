@@ -8,7 +8,12 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Schuss — European ski resorts",
   description: "Explore European ski resorts in 3D. Search by name, see pistes and lifts on a real terrain map.",
   manifest: "/manifest.webmanifest",

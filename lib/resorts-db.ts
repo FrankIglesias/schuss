@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { resorts as resortsTable, type Resort } from "@/db/schema";
@@ -29,7 +30,11 @@ export async function getAllResorts(): Promise<ResortIndexEntry[]> {
   return rows.map(toEntry);
 }
 
-export async function getResortBySlug(slug: string): Promise<ResortIndexEntry | undefined> {
-  const rows = await db.select().from(resortsTable).where(eq(resortsTable.slug, slug)).limit(1);
-  return rows[0] ? toEntry(rows[0]) : undefined;
-}
+// React cache() dedupes within a single request — so generateMetadata and the
+// page component share one DB roundtrip per resort.
+export const getResortBySlug = cache(
+  async (slug: string): Promise<ResortIndexEntry | undefined> => {
+    const rows = await db.select().from(resortsTable).where(eq(resortsTable.slug, slug)).limit(1);
+    return rows[0] ? toEntry(rows[0]) : undefined;
+  },
+);
