@@ -9,8 +9,8 @@ name = "schuss-etl"
 path = "src/main.rs"
 
 [[bin]]
-name = "upload-blobs"
-path = "src/bin/upload-blobs.rs"
+name = "upload-supabase"
+path = "src/bin/upload-supabase.rs"
 
 [profile.release]
 lto = "thin"
