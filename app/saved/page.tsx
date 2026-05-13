@@ -1,18 +1,32 @@
 "use client";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Heart } from "lucide-react";
-import { resorts } from "@/lib/resorts";
 import { ResortCard } from "@/components/ResortCard";
 import { useFavorites } from "@/lib/favorites";
+import type { ResortIndexEntry } from "@/lib/types";
 
 export default function SavedPage() {
   const { favorites } = useFavorites();
+  const [resorts, setResorts] = useState<ResortIndexEntry[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/resorts")
+      .then((r) => r.json())
+      .then((data: ResortIndexEntry[]) => {
+        if (!cancelled) setResorts(data);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const list = useMemo(
-    () => resorts.filter((r) => favorites.has(r.slug)),
-    [favorites],
+    () => (resorts ?? []).filter((r) => favorites.has(r.slug)),
+    [resorts, favorites],
   );
 
-  if (list.length === 0) {
+  if (resorts !== null && list.length === 0) {
     return (
       <main className="px-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex flex-col items-center justify-center min-h-[60dvh] text-center">
         <Heart className="size-10 mb-3 text-[color:var(--muted-foreground)]" />

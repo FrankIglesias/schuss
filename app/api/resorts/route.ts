@@ -1,7 +1,8 @@
-import { db } from "@/db";
-import { resorts } from "@/db/schema";
+import { getAllResorts } from "@/lib/resorts-db";
+
+export const revalidate = 3600;
 
 export async function GET() {
-  const rows = await db.select().from(resorts).limit(10);
+  const rows = await getAllResorts();
   return Response.json(rows);
 }

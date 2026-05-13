@@ -1,13 +1,31 @@
 "use client";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Heart } from "lucide-react";
-import { resorts } from "@/lib/resorts";
 import { ResortCard } from "@/components/ResortCard";
 import { useFavorites } from "@/lib/favorites";
+import type { ResortIndexEntry } from "@/lib/types";
 
 export function MyResortsSection() {
   const { favorites } = useFavorites();
-  const list = useMemo(() => resorts.filter((r) => favorites.has(r.slug)), [favorites]);
+  const [resorts, setResorts] = useState<ResortIndexEntry[]>([]);
+
+  useEffect(() => {
+    if (favorites.size === 0) return;
+    let cancelled = false;
+    fetch("/api/resorts")
+      .then((r) => r.json())
+      .then((data: ResortIndexEntry[]) => {
+        if (!cancelled) setResorts(data);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [favorites.size]);
+
+  const list = useMemo(
+    () => resorts.filter((r) => favorites.has(r.slug)),
+    [resorts, favorites],
+  );
   if (list.length === 0) return null;
 
   return (

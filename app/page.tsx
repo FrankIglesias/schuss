@@ -1,12 +1,14 @@
-import { resorts, resortsByCountry } from "@/lib/resorts";
+import { getAllResorts } from "@/lib/resorts-db";
+import { resortsByCountry } from "@/lib/resorts";
 import { ResortCard } from "@/components/ResortCard";
 import { SearchInput } from "@/components/SearchInput";
 import { MyResortsSection } from "@/components/MyResortsSection";
 import { countryFlag } from "@/lib/country-flags";
 import { Snowflake, Star } from "lucide-react";
 
-export default function HomePage() {
-  const grouped = resortsByCountry();
+export default async function HomePage() {
+  const resorts = await getAllResorts();
+  const grouped = resortsByCountry(resorts);
   const featured = resorts.slice(0, 5);
 
   return (

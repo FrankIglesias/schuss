@@ -2,18 +2,19 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, MapPin, Mountain, ArrowUp, Cable } from "lucide-react";
-import { getResort, resorts } from "@/lib/resorts";
+import { getAllResorts, getResortBySlug } from "@/lib/resorts-db";
 import { ResortViewer } from "@/components/ResortViewer";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { ResortPlaceholder } from "@/components/ResortPlaceholder";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const resorts = await getAllResorts();
   return resorts.map((r) => ({ slug: r.slug }));
 }
 
 export default async function ResortPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const resort = getResort(slug);
+  const resort = await getResortBySlug(slug);
   if (!resort) notFound();
 
   return (
