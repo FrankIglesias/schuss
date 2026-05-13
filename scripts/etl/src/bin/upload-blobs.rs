@@ -17,7 +17,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
-const CONCURRENCY: usize = 24;
+const CONCURRENCY: usize = 8;
+const MAX_RETRIES: usize = 4;
 const BLOB_API: &str = "https://blob.vercel-storage.com";
 const PATH_PREFIX: &str = "resorts";
 
@@ -89,7 +90,9 @@ async fn main() -> Result<()> {
                 }
                 Err(e) => {
                     failed.fetch_add(1, Ordering::Relaxed);
-                    pb.println(format!("  ✗ {name}: {e:#}"));
+                    let msg = format!("  ✗ {name}: {e:#}");
+                    pb.println(&msg);
+                    eprintln!("{msg}");
                 }
             }
             pb.inc(1);
@@ -130,29 +133,55 @@ async fn upload_one(
     pathname: &str,
     public_url: &str,
 ) -> Result<UploadOutcome> {
-    let head = client.head(public_url).send().await?;
-    if head.status() == StatusCode::OK {
+    let _ = public_url;
+
+    // Existence check via the authenticated API endpoint — the public hostname
+    // may be unreachable from this network, but blob.vercel-storage.com is fine.
+    let api_url = format!("{BLOB_API}/{pathname}");
+    let head = client
+        .head(&api_url)
+        .header(header::AUTHORIZATION, format!("Bearer {token}"))
+        .header("x-api-version", "7")
+        .timeout(Duration::from_secs(8))
+        .send()
+        .await;
+    if matches!(head, Ok(ref r) if r.status() == StatusCode::OK) {
         return Ok(UploadOutcome::Skipped);
     }
 
     let body = tokio::fs::read(path).await?;
 
-    let put_url = format!("{BLOB_API}/{pathname}");
-    let resp = client
-        .put(&put_url)
-        .header(header::AUTHORIZATION, format!("Bearer {token}"))
-        .header("x-api-version", "7")
-        .header("x-content-type", "application/json")
-        .header("x-add-random-suffix", "0")
-        .header("x-cache-control-max-age", "31536000")
-        .body(body)
-        .send()
-        .await?;
+    let mut delay_ms = 500u64;
+    for attempt in 0..=MAX_RETRIES {
+        let resp = client
+            .put(&api_url)
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
+            .header("x-api-version", "7")
+            .header("x-content-type", "application/json")
+            .header("x-add-random-suffix", "0")
+            .header("x-cache-control-max-age", "31536000")
+            .body(body.clone())
+            .send()
+            .await;
 
-    let status = resp.status();
-    if !status.is_success() {
-        let text = resp.text().await.unwrap_or_default();
-        return Err(anyhow!("PUT {pathname} failed: {status} {text}"));
+        match resp {
+            Ok(r) if r.status().is_success() => return Ok(UploadOutcome::Uploaded),
+            Ok(r) => {
+                let status = r.status();
+                let text = r.text().await.unwrap_or_default();
+                let retriable = status.as_u16() == 429 || status.is_server_error();
+                if !retriable || attempt == MAX_RETRIES {
+                    return Err(anyhow!("PUT {pathname} failed: {status} {text}"));
+                }
+            }
+            Err(e) => {
+                if attempt == MAX_RETRIES {
+                    return Err(anyhow!("PUT {pathname} transport error: {e}"));
+                }
+            }
+        }
+        tokio::time::sleep(Duration::from_millis(delay_ms)).await;
+        delay_ms = (delay_ms * 2).min(8000);
     }
-    Ok(UploadOutcome::Uploaded)
+    unreachable!()
 }
