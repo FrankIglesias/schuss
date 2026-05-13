@@ -2,9 +2,17 @@
 import { useEffect, useRef } from "react";
 import maplibregl, { NavigationControl } from "maplibre-gl";
 import { useRouter } from "next/navigation";
+import { countryFlag } from "@/lib/country-flags";
+import { attachGeolocate } from "@/lib/map";
 import type { ResortIndexEntry } from "@/lib/types";
 
 const STYLE_URL = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
+
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) =>
+    c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === '"' ? "&quot;" : "&#39;",
+  );
+}
 
 type Props = { resorts: ResortIndexEntry[] };
 
@@ -19,7 +27,15 @@ export function ResortsMap({ resorts }: Props) {
     const features: GeoJSON.Feature<GeoJSON.Point>[] = resorts.map((r) => ({
       type: "Feature",
       geometry: { type: "Point", coordinates: r.center },
-      properties: { slug: r.slug, name: r.name, country: r.country },
+      properties: {
+        slug: r.slug,
+        name: r.name,
+        country: r.country,
+        region: r.region ?? "",
+        runCount: r.runCount ?? 0,
+        liftCount: r.liftCount ?? 0,
+        elevationMax: r.elevationMax ?? 0,
+      },
     }));
     const fc: GeoJSON.FeatureCollection<GeoJSON.Point> = {
       type: "FeatureCollection",
@@ -35,6 +51,7 @@ export function ResortsMap({ resorts }: Props) {
     });
     mapRef.current = map;
     map.addControl(new NavigationControl({ visualizePitch: false }), "top-right");
+    map.addControl(attachGeolocate(map), "top-right");
 
     map.on("load", () => {
       map.addSource("resorts", {
@@ -110,11 +127,50 @@ export function ResortsMap({ resorts }: Props) {
         }).catch(() => {});
       });
 
+      const resortPopup = new maplibregl.Popup({
+        closeButton: true,
+        closeOnClick: true,
+        offset: 14,
+        maxWidth: "260px",
+      });
+
       map.on("click", "resorts-points", (e) => {
-        const feature = e.features?.[0] as GeoJSON.Feature | undefined;
-        const props = feature?.properties as { slug?: string } | undefined;
-        const slug = props?.slug;
-        if (typeof slug === "string") router.push(`/resort/${slug}`);
+        const feature = e.features?.[0];
+        if (!feature || feature.geometry.type !== "Point") return;
+        const p = feature.properties as {
+          slug: string;
+          name: string;
+          country: string;
+          region: string;
+          runCount: number;
+          liftCount: number;
+          elevationMax: number;
+        };
+        const flag = countryFlag(p.country);
+        const where = [p.region, p.country].filter(Boolean).join(" · ");
+        const stats: string[] = [];
+        if (p.elevationMax) stats.push(`${Math.round(p.elevationMax)} m`);
+        if (p.runCount) stats.push(`${p.runCount} pistes`);
+        if (p.liftCount) stats.push(`${p.liftCount} lifts`);
+        const html = `
+          <div class="resort-popup">
+            <div class="resort-popup-name">${escapeHtml(p.name)}</div>
+            <div class="resort-popup-where">${flag ? `${flag} ` : ""}${escapeHtml(where)}</div>
+            ${stats.length ? `<div class="resort-popup-stats">${stats.join(" · ")}</div>` : ""}
+            <button type="button" class="resort-popup-cta" data-slug="${escapeHtml(p.slug)}">View resort →</button>
+          </div>
+        `;
+        const [lng, lat] = feature.geometry.coordinates as [number, number];
+        resortPopup
+          .setLngLat([lng, lat])
+          .setHTML(html)
+          .addTo(map);
+        const el = resortPopup.getElement();
+        const btn = el?.querySelector<HTMLButtonElement>(".resort-popup-cta");
+        btn?.addEventListener("click", () => {
+          const slug = btn.dataset.slug;
+          if (slug) router.push(`/resort/${slug}`);
+        }, { once: true });
       });
 
       const cursorOn = () => (map.getCanvas().style.cursor = "pointer");

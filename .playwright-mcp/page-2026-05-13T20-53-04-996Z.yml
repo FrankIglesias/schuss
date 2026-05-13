@@ -1,0 +1,79 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - img "Dolomiti Superski" [ref=e5]
+      - link "Back" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img [ref=e8]
+      - button "Add to favorites" [ref=e10]:
+        - img [ref=e11]
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - img [ref=e15]
+          - generic [ref=e18]: Bolzano/Bozen · Italy
+        - heading "Dolomiti Superski" [level=1] [ref=e19]
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - img [ref=e24]
+          - text: Peak
+        - generic [ref=e26]: 3235.1 m
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - img [ref=e29]
+          - text: Pistes
+        - generic [ref=e31]: "2443"
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - img [ref=e34]
+          - text: Lifts
+        - generic [ref=e38]: "484"
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - button "map" [ref=e42]
+        - button "runs" [ref=e43]
+        - button "lifts" [ref=e44]
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - region "Map" [ref=e48]
+          - generic:
+            - generic:
+              - generic [ref=e49]:
+                - button "Zoom in" [ref=e50] [cursor=pointer]
+                - button "Zoom out" [ref=e52] [cursor=pointer]
+                - button "Reset bearing to north" [ref=e54]
+              - button "Find my location" [ref=e57] [cursor=pointer]
+        - button "3D" [ref=e60]:
+          - img [ref=e61]
+          - text: 3D
+        - generic [ref=e64]:
+          - button "Easy" [ref=e65]:
+            - generic [ref=e67]: Easy
+          - button "Intermediate" [ref=e68]:
+            - generic [ref=e70]: Intermediate
+          - button "Advanced" [ref=e71]:
+            - generic [ref=e73]: Advanced
+          - button "Expert" [ref=e74]:
+            - generic [ref=e76]: Expert
+          - button "Lifts" [ref=e77]:
+            - generic [ref=e79]: Lifts
+  - navigation [ref=e80]:
+    - list [ref=e82]:
+      - listitem [ref=e83]:
+        - link "Explore" [ref=e84] [cursor=pointer]:
+          - /url: /
+          - img [ref=e85]
+          - generic [ref=e88]: Explore
+      - listitem [ref=e89]:
+        - link "Search" [ref=e90] [cursor=pointer]:
+          - /url: /search
+          - img [ref=e91]
+          - generic [ref=e94]: Search
+      - listitem [ref=e95]:
+        - link "Saved" [ref=e96] [cursor=pointer]:
+          - /url: /saved
+          - img [ref=e97]
+          - generic [ref=e99]: Saved
+  - button "Open Next.js Dev Tools" [ref=e105] [cursor=pointer]:
+    - img [ref=e106]
+  - alert [ref=e109]

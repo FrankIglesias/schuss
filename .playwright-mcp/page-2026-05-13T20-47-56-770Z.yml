@@ -1,0 +1,69 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - img "Masella" [ref=e5]
+      - link "Back" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img [ref=e8]
+      - button "Add to favorites" [ref=e10]:
+        - img [ref=e11]
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - img [ref=e15]
+          - generic [ref=e18]: Barcelona · Spain
+        - heading "Masella" [level=1] [ref=e19]
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - img [ref=e24]
+          - text: Peak
+        - generic [ref=e26]: 2508.9 m
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - img [ref=e29]
+          - text: Pistes
+        - generic [ref=e31]: "99"
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - img [ref=e34]
+          - text: Lifts
+        - generic [ref=e38]: "18"
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - button "map" [ref=e42]
+        - button "runs" [ref=e43]
+        - button "lifts" [ref=e44]
+      - generic [ref=e46]:
+        - button "3D" [ref=e49]:
+          - img [ref=e50]
+          - text: 3D
+        - generic [ref=e52]:
+          - button "Easy" [ref=e53]:
+            - generic [ref=e55]: Easy
+          - button "Intermediate" [ref=e56]:
+            - generic [ref=e58]: Intermediate
+          - button "Advanced" [ref=e59]:
+            - generic [ref=e61]: Advanced
+          - button "Expert" [ref=e62]:
+            - generic [ref=e64]: Expert
+          - button "Lifts" [ref=e65]:
+            - generic [ref=e67]: Lifts
+  - navigation [ref=e70]:
+    - list [ref=e72]:
+      - listitem [ref=e73]:
+        - link "Explore" [ref=e74] [cursor=pointer]:
+          - /url: /
+          - img [ref=e75]
+          - generic [ref=e78]: Explore
+      - listitem [ref=e79]:
+        - link "Search" [ref=e80] [cursor=pointer]:
+          - /url: /search
+          - img [ref=e81]
+          - generic [ref=e84]: Search
+      - listitem [ref=e85]:
+        - link "Saved" [ref=e86] [cursor=pointer]:
+          - /url: /saved
+          - img [ref=e87]
+          - generic [ref=e89]: Saved
+  - button "Open Next.js Dev Tools" [ref=e95] [cursor=pointer]:
+    - img [ref=e96]
