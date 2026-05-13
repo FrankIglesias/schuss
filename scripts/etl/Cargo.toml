@@ -8,6 +8,10 @@ publish = false
 name = "schuss-etl"
 path = "src/main.rs"
 
+[[bin]]
+name = "upload-blobs"
+path = "src/bin/upload-blobs.rs"
+
 [profile.release]
 lto = "thin"
 codegen-units = 1

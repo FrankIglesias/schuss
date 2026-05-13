@@ -138,7 +138,8 @@ export const ResortMap = forwardRef<ResortMapHandle, Props>(function ResortMap(
 
       void (async () => {
         try {
-          const res = await fetch(`/resorts/${resort.slug}.json`);
+          const base = process.env.NEXT_PUBLIC_BLOB_BASE_URL ?? "";
+          const res = await fetch(`${base}/resorts/${resort.slug}.json`);
           if (!res.ok) return;
           const data = (await res.json()) as {
             runs: GeoJSON.FeatureCollection;
