@@ -10,7 +10,6 @@
     "build:data": "cargo run --release --manifest-path scripts/etl/Cargo.toml --"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
     "class-variance-authority": "^0.7.1",
@@ -21,6 +20,7 @@
     "lucide-react": "^1.14.0",
     "maplibre-gl": "^4.7.1",
     "next": "16.2.6",
+    "postgres": "^3.4.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-map-gl": "^8.1.1",
