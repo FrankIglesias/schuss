@@ -107,10 +107,34 @@ export function ResortsMap({ resorts }: Props) {
         source: "resorts",
         filter: ["!", ["has", "point_count"]],
         paint: {
-          "circle-color": "#22c55e",
+          "circle-color": "#ffffff",
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 3, 10, 6, 14, 9],
           "circle-stroke-color": "#0b1220",
           "circle-stroke-width": 1.5,
+        },
+      });
+
+      map.addLayer({
+        id: "resorts-labels",
+        type: "symbol",
+        source: "resorts",
+        filter: ["!", ["has", "point_count"]],
+        minzoom: 7,
+        layout: {
+          "text-field": ["get", "name"],
+          "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+          "text-size": ["interpolate", ["linear"], ["zoom"], 7, 11, 12, 14],
+          "text-offset": [0, 1.1],
+          "text-anchor": "top",
+          "text-max-width": 8,
+          "text-allow-overlap": false,
+          "text-optional": true,
+          "text-padding": 4,
+        },
+        paint: {
+          "text-color": "#ffffff",
+          "text-halo-color": "#0b1220",
+          "text-halo-width": 1.4,
         },
       });
 

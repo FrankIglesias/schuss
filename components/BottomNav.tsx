@@ -1,12 +1,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Search, Heart } from "lucide-react";
+import { Compass, Search, Heart, Map, Snowflake } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/", label: "Explore", icon: Compass },
   { href: "/search", label: "Search", icon: Search },
+  { href: "/map", label: "Map", icon: Map },
+  { href: "/ski", label: "Ski", icon: Snowflake },
   { href: "/saved", label: "Saved", icon: Heart },
 ];
 
@@ -18,7 +20,7 @@ export function BottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="mx-3 mb-3 rounded-2xl bg-[color:var(--card)]/85 backdrop-blur-xl border border-[color:var(--border)] shadow-[0_8px_30px_rgba(2,6,23,0.25)]">
-        <ul className="grid grid-cols-3">
+        <ul className="grid grid-cols-5">
           {items.map(({ href, label, icon: Icon }) => {
             const active =
               href === "/"

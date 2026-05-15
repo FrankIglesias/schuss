@@ -6,6 +6,7 @@ import { ChevronLeft, MapPin, Mountain, ArrowUp, Cable } from "lucide-react";
 import { getResortBySlug } from "@/lib/resorts-db";
 import { ResortViewer } from "@/components/ResortViewer";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { ActiveResortButton } from "@/components/ActiveResortButton";
 import { ResortPlaceholder } from "@/components/ResortPlaceholder";
 
 // ISR: first request to each slug hits Neon; subsequent requests in the window
@@ -61,7 +62,7 @@ export default async function ResortPage({ params }: { params: Promise<{ slug: s
   return (
     <main className="pb-8">
       {/* Hero */}
-      <section className="relative h-[55dvh] w-full overflow-hidden">
+      <section className="relative aspect-[16/9] w-full overflow-hidden">
         {resort.image ? (
           <Image
             src={resort.image}
@@ -83,16 +84,16 @@ export default async function ResortPage({ params }: { params: Promise<{ slug: s
         >
           <ChevronLeft className="size-5" />
         </Link>
-        <FavoriteButton
-          slug={resort.slug}
-          className="absolute top-[calc(env(safe-area-inset-top)+0.75rem)] right-3"
-        />
+        <div className="absolute top-[calc(env(safe-area-inset-top)+0.75rem)] right-3 flex items-center gap-2">
+          <ActiveResortButton slug={resort.slug} />
+          <FavoriteButton slug={resort.slug} />
+        </div>
         <div className="absolute inset-x-0 bottom-0 px-5 pb-12 text-white">
-          <div className="flex items-center gap-1.5 text-xs font-medium opacity-90">
+          <h1 className="text-3xl font-bold tracking-tight">{resort.name}</h1>
+          <div className="mt-1 flex items-center gap-1.5 text-xs font-medium opacity-90">
             <MapPin className="size-3.5" />
             <span>{resort.region ? `${resort.region} · ` : ""}{resort.country}</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight mt-1">{resort.name}</h1>
         </div>
       </section>
 

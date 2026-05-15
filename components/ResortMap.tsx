@@ -33,10 +33,12 @@ type Props = {
   resort: ResortIndexEntry;
   onRunsLoaded?: (runs: RunSummary[]) => void;
   onLiftsLoaded?: (lifts: LiftSummary[]) => void;
+  /** When true, the wrapper grows to fill the parent's available height. */
+  fill?: boolean;
 };
 
 export const ResortMap = forwardRef<ResortMapHandle, Props>(function ResortMap(
-  { resort, onRunsLoaded, onLiftsLoaded }: Props,
+  { resort, onRunsLoaded, onLiftsLoaded, fill = false }: Props,
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -187,68 +189,73 @@ export const ResortMap = forwardRef<ResortMapHandle, Props>(function ResortMap(
   }, [resort]);
 
   return (
-    <div
-      className="relative w-full overflow-hidden rounded-3xl border border-[color:var(--border)] shadow-xl"
-      style={{ height: "70dvh", minHeight: 480 }}
-    >
-      <div ref={containerRef} className="absolute inset-0 h-full w-full" />
+    <div className={`flex flex-col gap-3 ${fill ? "h-full min-h-0" : ""}`}>
+      <div
+        className={`relative w-full overflow-hidden rounded-3xl border border-[color:var(--border)] shadow-xl ${
+          fill ? "flex-1 min-h-0" : ""
+        }`}
+        style={fill ? undefined : { height: "70dvh", minHeight: 480 }}
+      >
+        <div ref={containerRef} className="absolute inset-0 h-full w-full" />
 
-      {/* 2D / 3D toggle */}
-      <div className="absolute left-3 top-3 flex flex-col gap-2">
-        <button
-          onClick={toggle3d}
-          className="inline-flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur text-white text-xs font-semibold px-3 h-9 shadow-lg active:scale-95 transition"
-        >
-          {is3d ? <Layers className="size-4" /> : <Mountain className="size-4" />}
-          {is3d ? "2D" : "3D"}
-        </button>
+        {/* 2D / 3D toggle */}
+        <div className="absolute left-3 top-3 flex flex-col gap-2">
+          <button
+            onClick={toggle3d}
+            className="inline-flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur text-white text-xs font-semibold px-3 h-9 shadow-lg active:scale-95 transition"
+          >
+            {is3d ? <Layers className="size-4" /> : <Mountain className="size-4" />}
+            {is3d ? "2D" : "3D"}
+          </button>
+        </div>
+
+        {!loaded && (
+          <div className="absolute inset-0 grid place-items-center bg-[color:var(--background)]/60 backdrop-blur-sm">
+            <div className="size-8 rounded-full border-2 border-[color:var(--accent)] border-t-transparent animate-spin" />
+          </div>
+        )}
       </div>
 
-      {/* Legend / piste filter */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-3 max-w-[calc(100%-1.5rem)] overflow-x-auto no-scrollbar rounded-full bg-black/70 backdrop-blur text-white text-[11px] leading-tight px-2 py-1.5 shadow-lg">
-        <div className="flex items-center gap-1.5 w-max">
-        {LEGEND_DIFFICULTIES.map(({ key, label, color }) => {
-          const active = visibleDifficulties.has(key);
-          // "easy" pill aggregates the rare "novice" runs too.
-          const count =
-            key === "easy"
-              ? (counts.runs.easy ?? 0) + (counts.runs.novice ?? 0)
-              : counts.runs[key] ?? 0;
-          return (
-            <button
-              key={key}
-              onClick={() => toggleDifficulty(key)}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 h-7 transition active:scale-95 ${
-                active ? "bg-white/15" : "opacity-40"
-              }`}
-            >
-              <span className="block h-1.5 w-3.5 rounded" style={{ background: color }} />
-              <span>{label}</span>
-              {count > 0 && <span className="opacity-60 tabular-nums">{count}</span>}
-            </button>
-          );
-        })}
-        <button
-          onClick={toggleLifts}
-          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 h-7 transition active:scale-95 ${
-            liftsVisible ? "bg-white/15" : "opacity-40"
-          }`}
-        >
-          <span
-            className="block h-0 w-3.5 border-t border-dashed border-white"
-            style={{ borderTopWidth: 2 }}
-          />
-          <span>Lifts</span>
-          {counts.lifts > 0 && <span className="opacity-60 tabular-nums">{counts.lifts}</span>}
-        </button>
+      {/* Legend / piste filter — below the map */}
+      <div className="w-full rounded-2xl bg-[color:var(--card)] border border-[color:var(--border)] px-3 py-2.5 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          {LEGEND_DIFFICULTIES.map(({ key, label, color }) => {
+            const active = visibleDifficulties.has(key);
+            const count =
+              key === "easy"
+                ? (counts.runs.easy ?? 0) + (counts.runs.novice ?? 0)
+                : counts.runs[key] ?? 0;
+            return (
+              <button
+                key={key}
+                onClick={() => toggleDifficulty(key)}
+                className={`inline-flex items-center gap-2 rounded-full px-4 h-10 text-sm font-medium transition active:scale-95 ${
+                  active
+                    ? "bg-white/10 text-white"
+                    : "bg-white/5 text-white/50 opacity-70"
+                }`}
+              >
+                <span className="block h-2 w-4 rounded" style={{ background: color }} />
+                <span>{label}</span>
+                {count > 0 && <span className="opacity-70 tabular-nums">{count}</span>}
+              </button>
+            );
+          })}
+          <button
+            onClick={toggleLifts}
+            className={`inline-flex items-center gap-2 rounded-full px-4 h-10 text-sm font-medium transition active:scale-95 ${
+              liftsVisible ? "bg-white/10 text-white" : "bg-white/5 text-white/50 opacity-70"
+            }`}
+          >
+            <span
+              className="block h-0 w-4 border-t border-dashed border-current"
+              style={{ borderTopWidth: 2 }}
+            />
+            <span>Lifts</span>
+            {counts.lifts > 0 && <span className="opacity-70 tabular-nums">{counts.lifts}</span>}
+          </button>
         </div>
       </div>
-
-      {!loaded && (
-        <div className="absolute inset-0 grid place-items-center bg-[color:var(--background)]/60 backdrop-blur-sm">
-          <div className="size-8 rounded-full border-2 border-[color:var(--accent)] border-t-transparent animate-spin" />
-        </div>
-      )}
     </div>
   );
 });

@@ -60,22 +60,37 @@ export function ResortViewer({ resort }: { resort: ResortIndexEntry }) {
 
   return (
     <div className="space-y-3">
-      <div className="inline-flex rounded-full bg-[color:var(--card)] border border-[color:var(--border)] p-1 text-sm">
-        {(["map", "runs", "lifts"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 h-8 rounded-full font-medium capitalize transition-colors ${
-              tab === t ? "bg-[color:var(--accent)] text-white" : "text-[color:var(--muted-foreground)]"
-            }`}
-          >
-            {t === "runs" && runs.length > 0
+      <div
+        role="tablist"
+        className="flex items-center w-full border-b border-[color:var(--border)] text-sm"
+      >
+        {(["map", "runs", "lifts"] as const).map((t) => {
+          const isActive = tab === t;
+          const label =
+            t === "runs" && runs.length > 0
               ? `Runs · ${runs.length}`
               : t === "lifts" && lifts.length > 0
               ? `Lifts · ${lifts.length}`
-              : t}
-          </button>
-        ))}
+              : t;
+          return (
+            <button
+              key={t}
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setTab(t)}
+              className={`relative flex-1 text-center pb-2.5 capitalize font-medium transition-colors ${
+                isActive
+                  ? "text-[color:var(--foreground)]"
+                  : "text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)]"
+              }`}
+            >
+              {label}
+              {isActive && (
+                <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-[color:var(--accent)]" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div hidden={tab !== "map"}>
