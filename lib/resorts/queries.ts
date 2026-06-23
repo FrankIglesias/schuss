@@ -3,7 +3,7 @@ import { cache } from "react";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { resorts as resortsTable, type Resort } from "@/db/schema";
-import type { ResortIndexEntry } from "./types";
+import type { ResortIndexEntry } from "@/lib/types";
 
 function toEntry(r: Resort): ResortIndexEntry {
   return {
@@ -34,7 +34,11 @@ export async function getAllResorts(): Promise<ResortIndexEntry[]> {
 // page component share one DB roundtrip per resort.
 export const getResortBySlug = cache(
   async (slug: string): Promise<ResortIndexEntry | undefined> => {
-    const rows = await db.select().from(resortsTable).where(eq(resortsTable.slug, slug)).limit(1);
+    const rows = await db
+      .select()
+      .from(resortsTable)
+      .where(eq(resortsTable.slug, slug))
+      .limit(1);
     return rows[0] ? toEntry(rows[0]) : undefined;
   },
 );

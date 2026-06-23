@@ -1,4 +1,4 @@
-import { getAllResorts } from "@/lib/resorts-db";
+import { getAllResorts } from "@/lib/resorts/queries";
 import { ResortsMap } from "@/components/ResortsMap";
 
 export default async function MapPage() {

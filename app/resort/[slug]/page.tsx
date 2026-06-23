@@ -3,15 +3,18 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, MapPin, Mountain, ArrowUp, Cable } from "lucide-react";
-import { getResortBySlug } from "@/lib/resorts-db";
+import { getResortBySlug } from "@/lib/resorts/queries";
+import { getResortConditions } from "@/lib/conditions/queries";
+import type { ResortConditions } from "@/db/schema";
 import { ResortViewer } from "@/components/ResortViewer";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { ActiveResortButton } from "@/components/ActiveResortButton";
 import { ResortPlaceholder } from "@/components/ResortPlaceholder";
 
-// ISR: first request to each slug hits Neon; subsequent requests in the window
-// serve the cached HTML. Resort metadata is near-static, so a long window is safe.
-export const revalidate = 86400;
+// ISR window is short here because live conditions (lifts open, snow depth)
+// share this page. Static metadata is unchanged but we accept the extra
+// regenerations so the conditions card doesn't go stale by a full day.
+export const revalidate = 600;
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },
@@ -58,6 +61,7 @@ export default async function ResortPage({ params }: { params: Promise<{ slug: s
   const { slug } = await params;
   const resort = await getResortBySlug(slug);
   if (!resort) notFound();
+  const conditions = await getResortConditions(resort.id);
 
   return (
     <main className="pb-8">
@@ -106,12 +110,102 @@ export default async function ResortPage({ params }: { params: Promise<{ slug: s
         </div>
       </section>
 
+      {/* Live conditions */}
+      {conditions ? <ConditionsCard c={conditions} /> : null}
+
       {/* Map */}
       <section className="px-4 mt-5">
         <ResortViewer resort={resort} />
       </section>
     </main>
   );
+}
+
+function ConditionsCard({ c }: { c: ResortConditions }) {
+  const statusColor =
+    c.openStatus === "open"
+      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+      : c.openStatus === "partially open"
+      ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+      : c.openStatus === "closed"
+      ? "bg-rose-500/15 text-rose-700 dark:text-rose-300"
+      : "bg-[color:var(--muted)] text-[color:var(--muted-foreground)]";
+
+  const lifts =
+    c.liftsOpen != null && c.liftsTotal != null
+      ? `${c.liftsOpen} / ${c.liftsTotal}`
+      : c.liftsOpen != null
+      ? String(c.liftsOpen)
+      : "—";
+  const slopes =
+    c.slopesOpenKm != null && c.slopesTotalKm != null
+      ? `${formatKm(c.slopesOpenKm)} / ${formatKm(c.slopesTotalKm)} km`
+      : "—";
+  const snow =
+    c.snowDepthTopCm != null || c.snowDepthBaseCm != null
+      ? `${c.snowDepthTopCm ?? "—"} / ${c.snowDepthBaseCm ?? "—"} cm`
+      : "—";
+
+  return (
+    <section className="px-4 mt-4">
+      <div className="rounded-2xl bg-[color:var(--card)] border border-[color:var(--border)] p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs uppercase tracking-wide font-medium text-[color:var(--muted-foreground)]">
+            <LiveDot />
+            Live conditions
+          </div>
+          {c.openStatus ? (
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full capitalize ${statusColor}`}>
+              {c.openStatus}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <ConditionField label="Lifts" value={lifts} />
+          <ConditionField label="Slopes" value={slopes} />
+          <ConditionField label="Snow (top / base)" value={snow} />
+        </div>
+
+        <div className="mt-3 text-[11px] text-[color:var(--muted-foreground)]">
+          Updated {relativeTime(c.fetchedAt)} · source: skiresort.info
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LiveDot() {
+  return (
+    <span className="relative inline-flex size-2.5 items-center justify-center" aria-hidden>
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+      <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+    </span>
+  );
+}
+
+function ConditionField({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col rounded-xl border border-[color:var(--border)] bg-[color:var(--muted)]/40 px-3 py-2">
+      <div className="text-[10px] uppercase tracking-wide text-[color:var(--muted-foreground)]">{label}</div>
+      <div className="mt-1 font-semibold text-sm">{value}</div>
+    </div>
+  );
+}
+
+function formatKm(km: number): string {
+  return Number.isInteger(km) ? String(km) : km.toFixed(1);
+}
+
+function relativeTime(d: Date): string {
+  const diffMs = Date.now() - new Date(d).getTime();
+  const mins = Math.round(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours} h ago`;
+  const days = Math.round(hours / 24);
+  return `${days} d ago`;
 }
 
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {

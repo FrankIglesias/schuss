@@ -1,4 +1,4 @@
-import { getAllResorts } from "@/lib/resorts-db";
+import { getAllResorts } from "@/lib/resorts/queries";
 
 export const revalidate = 3600;
 

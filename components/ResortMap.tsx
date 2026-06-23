@@ -235,7 +235,18 @@ export const ResortMap = forwardRef<ResortMapHandle, Props>(function ResortMap(
                     : "bg-white/5 text-white/50 opacity-70"
                 }`}
               >
-                <span className="block h-2 w-4 rounded" style={{ background: color }} />
+                <span
+                  className="block h-2 w-4 rounded"
+                  style={{
+                    background: color,
+                    // Add a faint outline on the darkest tier so the pill dot
+                    // stays legible against the dark card surface.
+                    boxShadow:
+                      key === "advanced" || key === "expert"
+                        ? "inset 0 0 0 1px rgba(255,255,255,0.35)"
+                        : undefined,
+                  }}
+                />
                 <span>{label}</span>
                 {count > 0 && <span className="opacity-70 tabular-nums">{count}</span>}
               </button>

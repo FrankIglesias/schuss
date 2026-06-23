@@ -1,4 +1,4 @@
-import { getAllResorts } from "@/lib/resorts-db";
+import { getAllResorts } from "@/lib/resorts/queries";
 import { SkiModeView } from "@/components/SkiModeView";
 
 export default async function SkiPage() {

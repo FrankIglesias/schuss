@@ -4,6 +4,7 @@ import { computeBbox, flattenLineCoords, measureLine } from "./measure";
 import type { RunSummary } from "./types";
 
 const RUNS_LAYER = "runs-line";
+const RUNS_CASING_LAYER = "runs-casing-black";
 
 type EnrichResult = {
   fc: GeoJSON.FeatureCollection;
@@ -57,6 +58,24 @@ export function enrichRuns(
 /** Add the source + line layer for runs, colored by difficulty. */
 export function addRunsLayer(map: maplibregl.Map, fc: GeoJSON.FeatureCollection): void {
   map.addSource("runs", { type: "geojson", data: fc });
+
+  // Casing for "black" pistes only: a wider, slightly blurred white-ish line
+  // drawn underneath so the #000 advanced/expert runs read against the dark
+  // basemap. Filtered so it doesn't wash out colored runs.
+  map.addLayer({
+    id: RUNS_CASING_LAYER,
+    type: "line",
+    source: "runs",
+    filter: ["match", ["get", "difficulty"], ["advanced", "expert"], true, false],
+    paint: {
+      "line-width": ["interpolate", ["linear"], ["zoom"], 10, 3.5, 14, 6, 16, 9],
+      "line-color": "#ffffff",
+      "line-opacity": 0.35,
+      "line-blur": 2.5,
+    },
+    layout: { "line-cap": "round", "line-join": "round" },
+  });
+
   map.addLayer({
     id: RUNS_LAYER,
     type: "line",
@@ -80,6 +99,19 @@ export function setRunsFilter(map: maplibregl.Map, allowed: string[]): void {
     map.setFilter(RUNS_LAYER, ["==", ["get", "difficulty"], "__none__"]);
   } else {
     map.setFilter(RUNS_LAYER, ["match", ["get", "difficulty"], allowed, true, false]);
+  }
+  // Keep the black-casing layer in sync with the main filter so toggling
+  // "Advanced" off in the legend hides the halo too.
+  if (map.getLayer(RUNS_CASING_LAYER)) {
+    const blackAllowed = allowed.filter((k) => k === "advanced" || k === "expert");
+    if (blackAllowed.length === 0) {
+      map.setFilter(RUNS_CASING_LAYER, ["==", ["get", "difficulty"], "__none__"]);
+    } else {
+      map.setFilter(
+        RUNS_CASING_LAYER,
+        ["match", ["get", "difficulty"], blackAllowed, true, false],
+      );
+    }
   }
 }
 

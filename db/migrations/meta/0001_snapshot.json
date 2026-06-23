@@ -1,0 +1,224 @@
+{
+  "id": "57f11edb-bee7-4481-9ffe-f8013f4a9d24",
+  "prevId": "e1ec2232-7880-4e45-9663-5ded45df395d",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.resort_conditions": {
+      "name": "resort_conditions",
+      "schema": "",
+      "columns": {
+        "resort_id": {
+          "name": "resort_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "open_status": {
+          "name": "open_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lifts_open": {
+          "name": "lifts_open",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lifts_total": {
+          "name": "lifts_total",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slopes_open_km": {
+          "name": "slopes_open_km",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slopes_total_km": {
+          "name": "slopes_total_km",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "snow_depth_top_cm": {
+          "name": "snow_depth_top_cm",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "snow_depth_base_cm": {
+          "name": "snow_depth_base_cm",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "resort_conditions_resort_id_resorts_id_fk": {
+          "name": "resort_conditions_resort_id_resorts_id_fk",
+          "tableFrom": "resort_conditions",
+          "tableTo": "resorts",
+          "columnsFrom": [
+            "resort_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.resorts": {
+      "name": "resorts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "country": {
+          "name": "country",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region": {
+          "name": "region",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bbox": {
+          "name": "bbox",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "center": {
+          "name": "center",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "elevation_min": {
+          "name": "elevation_min",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "elevation_max": {
+          "name": "elevation_max",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "run_km": {
+          "name": "run_km",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "run_count": {
+          "name": "run_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lift_count": {
+          "name": "lift_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "image_attribution": {
+          "name": "image_attribution",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "wikidata_id": {
+          "name": "wikidata_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "skiresort_uid": {
+          "name": "skiresort_uid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "resorts_slug_unique": {
+          "name": "resorts_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

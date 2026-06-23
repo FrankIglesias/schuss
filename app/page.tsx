@@ -1,4 +1,4 @@
-import { getAllResorts } from "@/lib/resorts-db";
+import { getAllResorts } from "@/lib/resorts/queries";
 import { ResortCard } from "@/components/ResortCard";
 import { SearchInput } from "@/components/SearchInput";
 import { MyResortsSection } from "@/components/MyResortsSection";

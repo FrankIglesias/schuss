@@ -17,12 +17,19 @@ type DifficultyMeta = {
  * Single source of truth for piste difficulties.
  * Order in this array IS the display order in the legend.
  */
+// European 4-tier convention. OSM piste:difficulty values are FIS-aligned,
+// so we map them directly to the European colors (green/blue/red/black)
+// rather than the 3-tier US scheme. Resorts in NA will look one tier
+// "harder" to a US visitor — acceptable, since the source data is European.
 export const DIFFICULTIES: DifficultyMeta[] = [
-  { key: "easy",         label: "Easy",         color: "#22c55e", order: 1, inLegend: true  },
-  { key: "novice",       label: "Easy",         color: "#22c55e", order: 0, inLegend: false },
-  { key: "intermediate", label: "Intermediate", color: "#3b82f6", order: 2, inLegend: true  },
-  { key: "advanced",     label: "Advanced",     color: "#ef4444", order: 3, inLegend: true  },
-  { key: "expert",       label: "Expert",       color: "#000000", order: 4, inLegend: true  },
+  { key: "novice",       label: "Beginner",     color: "#22c55e", order: 0, inLegend: true  },
+  { key: "easy",         label: "Easy",         color: "#3b82f6", order: 1, inLegend: true  },
+  { key: "intermediate", label: "Intermediate", color: "#ef4444", order: 2, inLegend: true  },
+  // "Black" runs stay pure #000 to match the FIS convention. Visibility on
+  // the dark basemap is restored by a casing/halo layer beneath the line
+  // (see lib/map/runs.ts) and an inset ring on the legend dot.
+  { key: "advanced",     label: "Advanced",     color: "#000000", order: 3, inLegend: true  },
+  { key: "expert",       label: "Expert",       color: "#000000", order: 4, inLegend: false },
   { key: "freeride",     label: "Freeride",     color: "#f59e0b", order: 5, inLegend: false },
   { key: "other",        label: "Other",        color: "#94a3b8", order: 6, inLegend: false },
 ];
